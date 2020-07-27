@@ -1,0 +1,56 @@
+package analizadores; 
+import java_cup.runtime.*;
+import java.util.LinkedList;
+import practica.*;
+
+
+parser code 
+{:
+    int potencia=1;
+    public String Octal="";
+    /**
+     * Método al que se llama automáticamente ante algún error sintactico.
+     **/ 
+    public void syntax_error(Symbol s){ 
+        int fil = (s.right)+1;
+        int col = (s.left)+1;
+        System.out.println("Error Sintáctico en la Línea " + (fil) +
+        " Columna "+(col)+ ". No se esperaba este componente: " +s.value+"."); 
+    } 
+
+    /**
+     * Método al que se llama automáticamente ante algún error sintáctico 
+     * en el que ya no es posible una recuperación de errores.
+     **/ 
+    public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception{ 
+        int fil = (s.right)+1;
+        int col = (s.left)+1;
+        System.out.println("Error síntactico irrecuperable en la Línea " + 
+        (fil)+ " Columna "+col+". Componente " + s.value + 
+        " no reconocido."); 
+    }  
+:} 
+
+terminal String numerico;
+
+non terminal S;
+non terminal String HEX;
+
+
+ 
+//Iniciar
+start with S; 
+
+S::=HEX:a{:
+    parser.Octal=a;
+:}
+;
+
+HEX::=numerico:a HEX:b{:
+    int num=(int)(Integer.parseInt(b)+(Integer.parseInt(a)*Math.pow(8, parser.potencia)));
+    parser.potencia=parser.potencia+1;
+    RESULT=""+num;
+:}
+|numerico:a{:
+    RESULT=a;
+:};
